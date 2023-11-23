@@ -1,0 +1,15 @@
+# /etc/systemd/system/xsolarlog.service
+[Unit]
+Description=XSolar Logger Deamon
+After=mosquitto.service
+
+[Service]
+ExecStart=/usr/local/xsolar/bin/xsolarlogger -c /usr/local/xsolar/etc/dfconfig.cfg
+SuccessExitStatus=0
+RestartSec=5
+Restart=on-failure
+TimeoutStopSec=120
+
+[Install]
+WantedBy=multi-user.target
+
