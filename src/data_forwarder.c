@@ -138,17 +138,62 @@ int influx_sink_task_cleanup()
 }
 #endif
 
+#ifdef MODBUSMS
+#include "modbus_src.h"
+
+modbus_source_config modbus_source_conf;
+int modbus_source_task_init(config_t* cfg)
+{
+    config_setting_t* modbus_src = config_lookup(cfg, "modbus-src");
+
+    if (modbus_src != NULL) 
+    {
+        char* mb_type = (char*)read_string_setting(modbus_src, "type", "RTU");
+        char* path = (char*) read_string_setting(modbus_src, "path", "/dev/ttyUSB0");
+        int baud = read_int_setting(modbus_src, "baud", 9600);
+        int parity = read_int_setting(modbus_src, "parity", (int) 'E');
+        int data_bit = read_int_setting(modbus_src, "data_bit", (int) 8);
+        int stop_bit = read_int_setting(modbus_src, "stop_bit", (int) 1);
+        int slave_id = read_int_setting(modbus_src, "slave_id", (int) 25);
+
+        // init queue
+        init_bus(&df_bus, URL);
+
+        modbus_source_init(&modbus_source_conf, &df_bus, mb_type, NULL, 0, path, baud, (char) parity, data_bit, stop_bit, slave_id);
+        modbus_source_run(&modbus_source_conf);
+
+
+        if (path != NULL) free(path);
+        if (mb_type != NULL) free(mb_type);
+        
+
+    } else {
+        log_message(LOG_ERR, "The 'modbus_src' subsetting is missing.\n");
+    }   
+
+    return 0;
+
+}
+
+/**
+ * @brief Cleanup
+ * 
+ * @return int 
+ */
+int modbus_source_task_cleanup()
+{
+    modbus_source_wait(&modbus_source_conf);
+    modbus_source_term(&modbus_source_conf);
+
+    return 0;
+}
+#endif
+
 int data_forwarder_task_init(config_t* cfg)
 {
-    mosquitto_lib_init();
-    
     // mqtt source task
-    log_message(LOG_INFO, "Init MQTT source reader task\n");
-    mosq_source_task_init(cfg);
-
-     // mqtt target task
-    log_message(LOG_INFO, "Init MQTT send task\n");
-    mosq_sink_task_init(cfg);
+    log_message(LOG_INFO, "Init Modbus source reader task\n");
+    modbus_source_task_init(cfg);
 
     // influx
     log_message(LOG_INFO, "Init Influxdb send task\n");
@@ -159,8 +204,7 @@ int data_forwarder_task_init(config_t* cfg)
 
 int data_forwarder_task_cleanup()
 {
-    mosq_source_task_cleanup();
-    mosq_sink_task_cleanup();
+    modbus_source_task_cleanup();
     influx_sink_task_cleanup();
 
     return ENOERR;

@@ -7,17 +7,22 @@
  * 
  * @copyright Copyright (c) 2023
  * 
+ * Note: Update e-meter
  */
+
+
 #include <stdio.h>
 #include <unistd.h>
 #include "influxdb_sink.h"
 #include "cjson/cJSON.h"
 #include "datalog.h"
+#include "meter_data.h"
 #include "logger.h"
 #include "error.h"
 #include "message.h"
 
 #define NNG
+#define DEBUG
 
 //FIXME
 extern char* strdup(const char*);
@@ -183,45 +188,26 @@ out:
 
 #endif
 
+// Function to convert meter_data_log to InfluxDB line protocol
+static char* convert_to_influxdb_line(struct meter_data_log* data) 
+{
+    // Create a buffer to hold the line protocol string
+    char* line_protocol = (char*)malloc(256);  // Adjust size as needed
 
-/**
- * @brief Datalog to influxDB line format 
- * 
- * @param data 
- * @param influxDBLine 
- */
-static void convertToInfluxDBLine(struct DataLog* data, char* influxDBLine) {
-    sprintf(influxDBLine,
-        "lxpvtf status=%ld,v_pv_1=%lf,v_pv_2=%ld,v_pv_3=%lf,v_bat=%ld,soc=%ld,soh=%ld,"
-        "p_pv=%ld,p_pv_1=%ld,p_pv_2=%ld,p_pv_3=%ld,p_charge=%ld,p_discharge=%ld,"
-        "v_ac_r=%lf,v_ac_s=%ld,v_ac_t=%ld,f_ac=%lf,p_inv=%ld,p_rec=%ld,pf=%ld,"
-        "v_eps_r=%lf,v_eps_s=%lf,v_eps_t=%ld,f_eps=%lf,p_eps=%ld,s_eps=%ld,"
-        "p_to_grid=%ld,p_to_user=%ld,e_pv_day=%lf,e_pv_day_1=%lf,e_pv_day_2=%ld,e_pv_day_3=%ld,"
-        "e_inv_day=%lf,e_rec_day=%ld,e_chg_day=%ld,e_dischg_day=%ld,e_eps_day=%ld,e_to_grid_day=%ld,"
-        "e_to_user_day=%lf,v_bus_1=%lf,v_bus_2=%lf,e_pv_all=%lf,e_pv_all_1=%lf,e_pv_all_2=%ld,e_pv_all_3=%ld,"
-        "e_inv_all=%lf,e_rec_all=%ld,e_chg_all=%ld,e_dischg_all=%ld,e_eps_all=%ld,e_to_grid_all=%ld,"
-        "e_to_user_all=%lf,t_inner=%ld,t_rad_1=%ld,t_rad_2=%ld,t_bat=%ld,runtime=%ld,"
-        "max_chg_curr=%ld,max_dischg_curr=%ld,charge_volt_ref=%ld,dischg_cut_volt=%ld,"
-        "bat_status_0=%ld,bat_status_1=%ld,bat_status_2=%ld,bat_status_3=%ld,bat_status_4=%ld,"
-        "bat_status_5=%ld,bat_status_6=%ld,bat_status_7=%ld,bat_status_8=%ld,bat_status_9=%ld,"
-        "bat_status_inv=%ld,bat_count=%ld,bat_capacity=%ld,bat_current=%ld,bms_event_1=%ld,"
-        "bms_event_2=%ld,max_cell_voltage=%ld,min_cell_voltage=%ld,max_cell_temp=%ld,"
-        "min_cell_temp=%ld,bms_fw_update_state=%ld,cycle_count=%ld,vbat_inv=%lf,time=%ld,datalog=\"%s\"\n",
-        *data->status, *data->v_pv_1, *data->v_pv_2, *data->v_pv_3, *data->v_bat, *data->soc, *data->soh,
-        *data->p_pv, *data->p_pv_1, *data->p_pv_2, *data->p_pv_3, *data->p_charge, *data->p_discharge,
-        *data->v_ac_r, *data->v_ac_s, *data->v_ac_t, *data->f_ac, *data->p_inv, *data->p_rec, *data->pf,
-        *data->v_eps_r, *data->v_eps_s, *data->v_eps_t, *data->f_eps, *data->p_eps, *data->s_eps,
-        *data->p_to_grid, *data->p_to_user, *data->e_pv_day, *data->e_pv_day_1, *data->e_pv_day_2, *data->e_pv_day_3,
-        *data->e_inv_day, *data->e_rec_day, *data->e_chg_day, *data->e_dischg_day, *data->e_eps_day, *data->e_to_grid_day,
-        *data->e_to_user_day, *data->v_bus_1, *data->v_bus_2, *data->e_pv_all, *data->e_pv_all_1, *data->e_pv_all_2,
-        *data->e_pv_all_3, *data->e_inv_all, *data->e_rec_all, *data->e_chg_all, *data->e_dischg_all, *data->e_eps_all,
-        *data->e_to_grid_all, *data->e_to_user_all, *data->t_inner, *data->t_rad_1, *data->t_rad_2, *data->t_bat,
-        *data->runtime, *data->max_chg_curr, *data->max_dischg_curr, *data->charge_volt_ref, *data->dischg_cut_volt,
-        *data->bat_status_0, *data->bat_status_1, *data->bat_status_2, *data->bat_status_3, *data->bat_status_4,
-        *data->bat_status_5, *data->bat_status_6, *data->bat_status_7, *data->bat_status_8, *data->bat_status_9,
-        *data->bat_status_inv, *data->bat_count, *data->bat_capacity, *data->bat_current, *data->bms_event_1,
-        *data->bms_event_2, *data->max_cell_voltage, *data->min_cell_voltage, *data->max_cell_temp, *data->min_cell_temp,
-        *data->bms_fw_update_state, *data->cycle_count, *data->vbat_inv, *data->time, data->datalog);
+    // Assuming "meter_measurement" is the name of your InfluxDB measurement
+    sprintf(line_protocol, "meter_measurement "
+                            "voltage=%f,"
+                            "current=%f,"
+                            "power=%f,"
+                            "reactive_power=%f,"
+                            "power_factor=%f,"
+                            "freq=%f,"
+                            "import_active=%f,"
+                            "export_active=%f",
+            data->voltage, data->current, data->power, data->reactive_power,
+            data->power_factor, data->freq, data->import_active, data->export_active);
+
+    return line_protocol;
 }
 
 /**
@@ -237,71 +223,29 @@ static void* influxdb_write_task(void* arg)
     // get queue 
     BusReader* br = cfg->br;
 
-    char data[2048];
     while (1) 
     {        
-        struct Message* msg;
+        meter_data_log* mdl;
         void* data;
         int datalen;
 
         if (0 == bus_read(br, (void**) &data, &datalen))
         {
-            if (datalen == sizeof(struct Message))
+            if (datalen == sizeof(meter_data_log))
             {
-                msg = (struct Message*) data;
-
-                #ifdef DEBUG
-                // log_message(LOG_INFO, "%s\n", msg->source_topic);
-                // log_message(LOG_INFO, "%s\n", (char*) msg->data);
-                #endif // DEBUG
+                mdl = (meter_data_log*) data;
                 
-                // Parse JSON with cJSON
-                cJSON* json = cJSON_Parse(msg->data);
-                if (json) {
+                char* inf_linedata = convert_to_influxdb_line(mdl);
 
-                    // parse to object
-                    struct DataLog * logData = cJSON_GetDataLogValue(json);
-                    if (logData)
-                    {
-                        char* jsonp = cJSON_PrintDataLog(logData);
+                #ifdef DEBUG                
+                log_message(LOG_INFO, "%s\n", (char*) inf_linedata);
+                #endif // DEBUG
 
-                        // DEBUG: 
-                        // printf("%s\n", jsonp);
-
-                        // Convert data to InfluxDB format and send
-                        char influxData[1024]; // Adjust size as needed
-                        snprintf(influxData, sizeof(influxData), 
-                            "lxpvt v_pv_1=%f,p_pv_1=%ld,p_inv=%ld,p_to_user=%ld,e_to_user_day=%f,e_pv_all_1=%f,e_to_user_all=%f\n", 
-                            *logData->v_pv_1,
-                            *logData->p_pv_1,
-                            *logData->p_inv,
-                            *logData->p_to_user,
-                            *logData->e_to_user_day,
-                            *logData->e_pv_all_1,
-                            *logData->e_to_user_all
-                            // *logData->time * 1000000000ll
-                            );
-
-                        // sendDataToInfluxDB(influxData);
-                        sendDataToInfluxDBv2(cfg, influxData, strlen(influxData));
-
-                        char influxDataFull[1024*2];
-                        convertToInfluxDBLine(logData, influxDataFull);
-                        sendDataToInfluxDBv2(cfg, influxDataFull, strlen(influxDataFull));
-
-                    
-                        // free
-                        cJSON_free(jsonp);
-                        cJSON_DeleteDataLog(logData);
-                    }
-
-                } else {
-                    // LOG
-                    printf("Error parsing JSON: %s\n", cJSON_GetErrorPtr());
-                }
+                sendDataToInfluxDBv2(cfg, inf_linedata, strlen(inf_linedata));
+                free(inf_linedata);
             }
 
-            free(data);
+            if (data) free(data);
         }
     }
     

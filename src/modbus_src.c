@@ -8,6 +8,7 @@
  * @copyright Copyright (c) 2023
  * 
  */
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -119,6 +120,9 @@ static void* modbus_source_reader_task(void* arg)
         
         //write to queue
         bus_write(cfg->bw, (void*) &md_log, sizeof(md_log));
+
+        // sleep
+        usleep(1000000 * 10); // 10 second
     
     }
 
@@ -164,6 +168,7 @@ int modbus_source_init(modbus_source_config* cfg, Bus *b, const char* mb_type, c
     cfg->parity = parity;
     cfg->data_bit = data_bit;    
     cfg->stop_bit = stop_bit;
+    cfg->slave_id = slave_id;
 
     return 0;
 }
