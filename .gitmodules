@@ -1,0 +1,3 @@
+[submodule "NanoNNG"]
+	path = NanoNNG
+	url = git@github.com:xsolar-co/NanoNNG.git
