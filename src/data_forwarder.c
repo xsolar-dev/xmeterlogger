@@ -114,12 +114,14 @@ int influx_sink_task_init(config_t* cfg)
         char* url = (char*)read_string_setting(influx_sink, "url", "");
         char* orgid = (char*)read_string_setting(influx_sink, "orgid", "lxdvinhnguyen01");
         char* token = (char*)read_string_setting(influx_sink, "token", "lxd@123");
+        char* measurement = (char*) read_string_setting(influx_sink, "measurement", "meter_dss666");
         
         printf("url: %s\n", url);
         printf("orgid: %s\n", orgid);
         printf("token: %s\n", token);
+        printf("measurement: %s\n", measurement);
     
-        influx_sink_init2(&influx_sink_conf, &df_bus, url, orgid, token);
+        influx_sink_init2(&influx_sink_conf, &df_bus, url, orgid, token, measurement);
         influx_sink_run(&influx_sink_conf);
 
     } else {

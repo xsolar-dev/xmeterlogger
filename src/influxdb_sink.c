@@ -189,13 +189,13 @@ out:
 #endif
 
 // Function to convert meter_data_log to InfluxDB line protocol
-static char* convert_to_influxdb_line(struct meter_data_log* data) 
+static char* convert_to_influxdb_line(const char* measurement, struct meter_data_log* data) 
 {
     // Create a buffer to hold the line protocol string
     char* line_protocol = (char*)malloc(256);  // Adjust size as needed
 
     // Assuming "meter_measurement" is the name of your InfluxDB measurement
-    sprintf(line_protocol, "meter_dds666 "
+    sprintf(line_protocol, "%s "
                             "voltage=%f,"
                             "current=%f,"
                             "power=%f,"
@@ -204,7 +204,7 @@ static char* convert_to_influxdb_line(struct meter_data_log* data)
                             "freq=%f,"
                             "import_active=%f,"
                             "export_active=%f",
-            data->voltage, data->current, data->power, data->reactive_power,
+            measurement, data->voltage, data->current, data->power, data->reactive_power,
             data->power_factor, data->freq, data->import_active, data->export_active);
 
     return line_protocol;
@@ -235,7 +235,7 @@ static void* influxdb_write_task(void* arg)
             {
                 mdl = (meter_data_log*) data;
                 
-                char* inf_linedata = convert_to_influxdb_line(mdl);
+                char* inf_linedata = convert_to_influxdb_line(cfg->measurement, mdl);
 
                 #ifdef DEBUG                
                 log_message(LOG_INFO, "%s\n", (char*) inf_linedata);
@@ -304,7 +304,7 @@ int influx_sink_init(influx_sink_config* cfg, Bus* b, const char* host, int port
  * @param token 
  * @return int 
  */
-int influx_sink_init2(influx_sink_config* cfg, Bus* b, const char* url, const char* orgid, const char* token)
+int influx_sink_init2(influx_sink_config* cfg, Bus* b, const char* url, const char* orgid, const char* token, const char* measurement)
 {
     memset(cfg, 0, sizeof (influx_sink_config));
 
@@ -319,6 +319,9 @@ int influx_sink_init2(influx_sink_config* cfg, Bus* b, const char* url, const ch
 
     if (token != NULL)
         cfg->token = strdup(token);
+
+    if (measurement != NULL)
+        cfg->measurement = strdup(measurement);
 
     return 0;
 }
