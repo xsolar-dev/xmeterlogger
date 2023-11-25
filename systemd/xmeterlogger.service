@@ -4,7 +4,7 @@ Description=XSolar Logger Deamon
 After=mosquitto.service
 
 [Service]
-ExecStart=/usr/local/xsolar/bin/xsolarlogger -c /usr/local/xsolar/etc/dfconfig.cfg
+ExecStart=/usr/local/xsolar/bin/xmeterlogger -c /usr/local/xsolar/etc/mconfig.cfg
 SuccessExitStatus=0
 RestartSec=5
 Restart=on-failure

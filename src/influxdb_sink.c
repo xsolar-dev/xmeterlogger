@@ -195,7 +195,7 @@ static char* convert_to_influxdb_line(struct meter_data_log* data)
     char* line_protocol = (char*)malloc(256);  // Adjust size as needed
 
     // Assuming "meter_measurement" is the name of your InfluxDB measurement
-    sprintf(line_protocol, "meter_measurement "
+    sprintf(line_protocol, "meter_dds666 "
                             "voltage=%f,"
                             "current=%f,"
                             "power=%f,"
