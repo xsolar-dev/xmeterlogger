@@ -83,7 +83,7 @@ static void* modbus_source_reader_task(void* arg)
         const int base_regs = 9;
         const int base_addr = 0x2000;
         const int base_addr_impw = 0x4000;
-        const int base_addr_expw = 0x4000;
+        const int base_addr_expw = 0x400A;
 
         int rc;
         uint16_t chint_meter_regw[2];
