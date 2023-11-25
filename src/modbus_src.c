@@ -34,7 +34,9 @@ static float convert_2w_to_float(uint16_t* data)
 		float f;
 	} u;
 	
-	u.j = ((uint32_t) data[0] << 16 | data[1]);
+	// u.j = ((uint32_t) data[0] << 16 | data[1]); // litle endian
+    u.j = ((uint32_t) data[1] << 16 | data[0]); // big endian
+
 	return (float) u.f; 
 }
 
