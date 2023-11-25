@@ -34,8 +34,8 @@ static float convert_2w_to_float(uint16_t* data)
 		float f;
 	} u;
 	
-	// u.j = ((uint32_t) data[0] << 16 | data[1]); // litle endian
-    u.j = ((uint32_t) data[1] << 16 | data[0]); // big endian
+	u.j = ((uint32_t) data[0] << 16 | data[1]); // litle endian
+    
 
 	return (float) u.f; 
 }
@@ -118,7 +118,7 @@ static void* modbus_source_reader_task(void* arg)
             log_message(LOG_ERR, "Modbus read error: %s\n", modbus_strerror(errno));
             exit(EXIT_FAILURE);
         }
-        md_log.import_active = convert_2w_to_float(chint_meter_regw);
+        md_log.export_active = convert_2w_to_float(chint_meter_regw);
         
         //write to queue
         bus_write(cfg->bw, (void*) &md_log, sizeof(md_log));
