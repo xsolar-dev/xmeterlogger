@@ -37,6 +37,7 @@ set(SOURCES
     src/hashtable.c
     src/data_forwarder.c
     src/http_client_nng.c
+    src/meter_reader.c
 )
 
 # List of header files
