@@ -17,9 +17,9 @@
 #include "cjson/cJSON.h"
 #include "datalog.h"
 #include "meter_data.h"
-#include "logger.h"
-#include "error.h"
-#include "message.h"
+#include "utils/logger.h"
+#include "utils/error.h"
+#include "utils/message.h"
 
 #define NNG
 #define DEBUG

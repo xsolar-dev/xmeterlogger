@@ -1,5 +1,5 @@
-#include "configuration.h"
-#include "error.h"
+#include "utils/configuration.h"
+#include "utils/error.h"
 
 //FIXME
 extern char* strdup(const char*);

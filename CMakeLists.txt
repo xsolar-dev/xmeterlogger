@@ -41,9 +41,9 @@ set(SOURCES
 
 # List of header files
 set(HEADERS
-    include/datalog.h
-    include/logger.h
-    include/squeue.h
+    # include/datalog.h
+    # include/logger.h
+    # include/squeue.h
 )
 
 set(LINK_LIBRARIES

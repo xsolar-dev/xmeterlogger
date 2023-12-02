@@ -18,12 +18,12 @@
 
 #include <libconfig.h>
 
-#include "error.h"
-#include "configuration.h"
+#include "utils/error.h"
+#include "utils/configuration.h"
 
 #include "cjson/cJSON.h"
-#include "logger.h"
-#include "squeue.h"
+#include "utils/logger.h"
+#include "utils/squeue.h"
 #include "datalog.h"
 #include "data_forwarder.h"
 

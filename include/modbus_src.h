@@ -2,7 +2,7 @@
 #define MODBUS_SRC_H 
 
 #include <pthread.h>
-#include "sbus.h"
+#include "utils/sbus.h"
 #include "meter_data.h"
 
 typedef struct {

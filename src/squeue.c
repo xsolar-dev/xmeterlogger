@@ -9,10 +9,10 @@
  * 
  * use nng as internal queue-system
  */
-#include "squeue.h"
+#include "utils/squeue.h"
 #include "datalog.h"
-#include "logger.h"
-#include "error.h"
+#include "utils/logger.h"
+#include "utils/error.h"
 
 #include <nng/nng.h>
 #include <nng/protocol/bus0/bus.h>

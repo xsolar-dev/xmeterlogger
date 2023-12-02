@@ -15,10 +15,10 @@
 #include <pthread.h>
 #include <modbus/modbus.h>
 #include "modbus_src.h"
-#include "error.h"
-#include "logger.h"
-#include "message.h"
-#include "sbus.h"
+#include "utils/error.h"
+#include "utils/logger.h"
+#include "utils/message.h"
+#include "utils/sbus.h"
 #include "datalog.h"
 
 //FIXME
