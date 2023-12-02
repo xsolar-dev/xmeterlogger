@@ -1,0 +1,6 @@
+#ifndef NNG_MQTT_CLIENT_HH
+#define NNG_MQTT_CLIENT_HH
+ 
+
+
+#endif // !NNG_MQTT_CLIENT_HH

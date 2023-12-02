@@ -1,0 +1,6 @@
+#ifndef NNG_HTTP_CLIENT_HH
+#define NNG_HTTP_CLIENT_HH
+ 
+
+
+#endif // !NNG_HTTP_CLIENT_HH

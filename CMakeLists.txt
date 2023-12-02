@@ -36,7 +36,8 @@ set(SOURCES
     src/list.c
     src/hashtable.c
     src/data_forwarder.c
-    src/http_client_nng.c
+    src/ng_http.c
+    src/ng_mqtt.c
     src/meter_reader.c
 )
 
