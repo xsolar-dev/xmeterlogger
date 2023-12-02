@@ -3,7 +3,7 @@
 
 #include <pthread.h>
 #include "utils/sbus.h"
-#include "meter_data.h"
+#include "meter/meter_data.h"
 
 typedef struct {
     char*   mb_type; // RTU, TCP

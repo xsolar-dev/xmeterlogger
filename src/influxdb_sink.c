@@ -15,8 +15,8 @@
 #include <unistd.h>
 #include "influxdb_sink.h"
 #include "cjson/cJSON.h"
-#include "datalog.h"
-#include "meter_data.h"
+#include "meter/datalog.h"
+#include "meter/meter_data.h"
 #include "utils/logger.h"
 #include "utils/error.h"
 #include "utils/message.h"

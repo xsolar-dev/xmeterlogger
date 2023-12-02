@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
-#include "datalog.h"
+#include "meter/datalog.h"
 
 //FIXME
 extern char* strdup(const char*);

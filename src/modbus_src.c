@@ -19,7 +19,7 @@
 #include "utils/logger.h"
 #include "utils/message.h"
 #include "utils/sbus.h"
-#include "datalog.h"
+#include "meter/datalog.h"
 
 //FIXME
 extern char* strdup(const char*);

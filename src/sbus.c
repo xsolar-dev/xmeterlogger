@@ -9,7 +9,7 @@
  * 
  */
 #include "utils/sbus.h"
-#include "datalog.h"
+#include "meter/datalog.h"
 #include "utils/logger.h"
 #include "utils/error.h"
 

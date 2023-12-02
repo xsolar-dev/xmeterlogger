@@ -24,7 +24,7 @@
 #include "cjson/cJSON.h"
 #include "utils/logger.h"
 #include "utils/squeue.h"
-#include "datalog.h"
+#include "meter/datalog.h"
 #include "data_forwarder.h"
 
 
