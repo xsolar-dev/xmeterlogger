@@ -101,14 +101,14 @@ int read_dss666_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
 int read_pzem16_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
 {
     //  PZEM16
-    const int base_regs = 9;
-    const int base_addr = 0x0;
+    const int base_regs = 10;
+    const int base_addr = 0x0000;
     
     int rc;
     uint16_t chint_meter_data[2*base_regs];
     
     
-    rc = modbus_read_registers(modbus_ctx, base_addr, base_regs, (uint16_t*) chint_meter_data);
+    rc = modbus_read_input_registers(modbus_ctx, base_addr, base_regs, (uint16_t*) chint_meter_data);
     if (rc == -1) 
     {
         log_message(LOG_ERR, "Modbus read error: %s\n", modbus_strerror(errno));
@@ -116,10 +116,11 @@ int read_pzem16_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
     }
 
     data->voltage          = (float)chint_meter_data[0x00] * 0.1f;
-    data->current          = convert_2w_to_float((uint16_t *)&chint_meter_data[0x01]) * 0.001f;
-    data->power            = convert_2w_to_float((uint16_t *)&chint_meter_data[0x03]) * 0.1f;
+    // data->current          = convert_2w_to_float((uint16_t *)&chint_meter_data[0x01]) * 0.001f;
+    data->current          = (float) ((uint32_t) chint_meter_data[0x2] << 16 | chint_meter_data[0x01]) * 0.001f;
+    data->power            = (float) ((uint32_t) chint_meter_data[0x4] << 16 | chint_meter_data[0x03]) * 0.1f;
     data->reactive_power   = 0;
-    data->import_active    = convert_2w_to_float((uint16_t *)&chint_meter_data[0x05]); // total energy consumed
+    data->import_active    = (float) ((uint32_t) chint_meter_data[0x6] << 16 | chint_meter_data[0x05]); // total energy consumed
     data->freq             = (float)chint_meter_data[0x07] * 0.1f;
     data->power_factor     = (float)chint_meter_data[0x08] * 0.01f;
 
