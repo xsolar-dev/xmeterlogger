@@ -150,6 +150,7 @@ int modbus_source_task_init(config_t* cfg)
 
     if (modbus_src != NULL) 
     {
+        int mtype = read_int_setting(modbus_src, "meter", 0); // DSSU666 
         char* mb_type = (char*)read_string_setting(modbus_src, "type", "RTU");
         char* path = (char*) read_string_setting(modbus_src, "path", "/dev/ttyUSB0");
         int baud = read_int_setting(modbus_src, "baud", 9600);
@@ -161,7 +162,7 @@ int modbus_source_task_init(config_t* cfg)
         // init queue
         init_bus(&df_bus, URL);
 
-        modbus_source_init(&modbus_source_conf, &df_bus, mb_type, NULL, 0, path, baud, (char) parity, data_bit, stop_bit, slave_id);
+        modbus_source_init(&modbus_source_conf, &df_bus, mtype, mb_type, NULL, 0, path, baud, (char) parity, data_bit, stop_bit, slave_id);
         modbus_source_run(&modbus_source_conf);
 
 

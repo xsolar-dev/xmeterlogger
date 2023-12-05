@@ -1,12 +1,25 @@
+/**
+ * @file meter_reader.c
+ * @author longdh
+ * @brief 
+ * @version 0.1
+ * @date 2023-12-05
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 #include <stdlib.h>
 #include <errno.h>
-#include <modbus/modbus.h>
-#include "meter/meter_data.h"
 #include "meter/meter_reader.h"
 #include "utils/error.h"
 #include "utils/logger.h"
 
-
+/**
+ * @brief converter
+ * 
+ * @param data 
+ * @return float 
+ */
 static float convert_2w_to_float(uint16_t* data)
 {
     union
@@ -22,13 +35,13 @@ static float convert_2w_to_float(uint16_t* data)
 }
 
 /**
- * @brief read meter data from modbus
+ * @brief read meter data from modbus, dss666
  * 
  * @param modbus_ctx 
  * @param data 
  * @return int 
  */
-int read_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
+int read_dss666_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
 {
     //  DSSU666
     const int base_regs = 9;
@@ -82,4 +95,50 @@ int read_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
     data->export_active = modbus_get_float_dcba(chint_meter_regw);
 
     return 0;
+}
+
+// PZEM-16
+int read_pzem16_meter_data(modbus_t *modbus_ctx, meter_data_log* data)
+{
+    //  PZEM16
+    const int base_regs = 9;
+    const int base_addr = 0x0;
+    
+    int rc;
+    uint16_t chint_meter_data[2*base_regs];
+    
+    
+    rc = modbus_read_registers(modbus_ctx, base_addr, base_regs, (uint16_t*) chint_meter_data);
+    if (rc == -1) 
+    {
+        log_message(LOG_ERR, "Modbus read error: %s\n", modbus_strerror(errno));
+        exit(EXIT_FAILURE);
+    }
+
+    data->voltage          = (float)chint_meter_data[0x00] * 0.1f;
+    data->current          = convert_2w_to_float((uint16_t *)&chint_meter_data[0x01]) * 0.001f;
+    data->power            = convert_2w_to_float((uint16_t *)&chint_meter_data[0x03]) * 0.1f;
+    data->reactive_power   = 0;
+    data->import_active    = convert_2w_to_float((uint16_t *)&chint_meter_data[0x05]); // total energy consumed
+    data->freq             = (float)chint_meter_data[0x07] * 0.1f;
+    data->power_factor     = (float)chint_meter_data[0x08] * 0.01f;
+
+    return 0;
+}
+
+/**
+ * @brief 
+ * 
+ * @param mtype 
+ * @param modbus_ctx 
+ * @param data 
+ * @return int 
+ */
+int read_meter_data(enum METER_TYPE mtype, modbus_t *modbus_ctx, meter_data_log* data)
+{
+    if (mtype == DSSU666)
+        return read_dss666_meter_data(modbus_ctx, data);
+
+    if (mtype == PZEM16)
+        return read_pzem16_meter_data(modbus_ctx, data);
 }

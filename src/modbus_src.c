@@ -68,7 +68,8 @@ static void* modbus_source_reader_task(void* arg)
     {
         int rc;
         meter_data_log md_log;
-        rc = read_meter_data(modbus_ctx, &md_log);
+
+        rc = read_meter_data(cfg->mtype, modbus_ctx, &md_log);
 
         if (rc == 0)
         {
@@ -102,12 +103,14 @@ static void* modbus_source_reader_task(void* arg)
  * @param slave_id 
  * @return int 
  */
-int modbus_source_init(modbus_source_config* cfg, Bus *b, const char* mb_type, const char* host, int port, const char* path, int baud, char parity, int data_bit, int stop_bit, int slave_id)
+int modbus_source_init(modbus_source_config* cfg, Bus *b, int mtype, const char* mb_type, const char* host, int port, const char* path, int baud, char parity, int data_bit, int stop_bit, int slave_id)
 {
     memset(cfg, 0, sizeof (modbus_source_config));
 
     cfg->b = b;
     create_bus_writer(&cfg->bw, cfg->b);
+
+    cfg->mtype = mtype;
 
     if (mb_type != NULL)
         cfg->mb_type = strdup(mb_type);
